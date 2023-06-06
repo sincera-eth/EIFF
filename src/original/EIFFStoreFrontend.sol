@@ -2,13 +2,13 @@
 pragma solidity ^0.8.13;
 
 import {SSTORE2} from "solady/utils/SSTORE2.sol";
-import {IFileStore} from "./IFileStore.sol";
-import {IContentStore} from "./IContentStore.sol";
+import {IEIFFStore} from "./IEIFFStore.sol";
+import {IChunkStore} from "./IChunkStore.sol";
 
 // Convenience methods to call from the frontend or subgraph, where they would
 // otherwise be too gas heavy for another contract.
 
-contract FileStoreFrontend {
+contract EIFFStoreFrontend {
     function readFile(IFileStore fileStore, string memory filename)
         public
         view

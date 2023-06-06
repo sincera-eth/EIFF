@@ -1,18 +1,24 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.13;
 
-import {File} from "./File.sol";
-import {IContentStore} from "./IContentStore.sol";
+import {EIFF} from "./EIFF.sol";
+import {IChunkStore} from "./IChunkStore.sol";
 
-interface IFileStore {
-    event FileCreated(
+interface IEIFFStore {
+    event EIFFCreated(
+        string indexed indexedFilename,
+        bytes32 indexed checksum,
+        string filename,
+        bytes metadata
+    );
+    event EIFFFinalized(
         string indexed indexedFilename,
         bytes32 indexed checksum,
         string filename,
         uint256 size,
         bytes metadata
     );
-    event FileDeleted(
+    event EIFFDeleted(
         string indexed indexedFilename,
         bytes32 indexed checksum,
         string filename
@@ -22,7 +28,7 @@ interface IFileStore {
     error FilenameExists(string filename);
     error EmptyFile();
 
-    function contentStore() external view returns (IContentStore);
+    function chunkStore() external view returns (IChunkStore);
 
     function files(string memory filename)
         external
@@ -39,17 +45,15 @@ interface IFileStore {
     function getFile(string memory filename)
         external
         view
-        returns (File memory file);
+        returns (EIFF memory file);
 
     function createFile(string memory filename, bytes32[] memory checksums)
         external
-        returns (File memory file);
+        returns (EIFF memory file);
 
     function createFile(
         string memory filename,
         bytes32[] memory checksums,
         bytes memory extraData
-    ) external returns (File memory file);
-
-    function deleteFile(string memory filename) external;
+    ) external returns (EIFF memory file);
 }
