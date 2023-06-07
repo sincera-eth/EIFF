@@ -74,6 +74,6 @@ contract EIFFReader is ERC721Enumerable, Owned(msg.sender) {
     }
 
     function withdraw() public onlyOwner {
-        SafeTransferLib.safeTransferETH(address(this).balance, owner());
+        SafeTransferLib.safeTransferETH(owner, address(this).balance);
     }
 }

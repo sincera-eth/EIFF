@@ -210,7 +210,9 @@ contract EIFFStore is EIFFReader {
             _mint(holder, totalSupply());
         } 
         uint256 holderId = tokenOfOwnerByIndex(holder, 0);
-        readerSettings[holderId].expiration = readerSettings[holderId].expiration < uint64(block.timestamp) ? uint64(block.timestamp) + creditLength : ++creditLength;
+        readerSettings[holderId].expiration = 
+            readerSettings[holderId].expiration < uint64(block.timestamp) ? uint64(block.timestamp) + creditLength : 
+            readerSettings[holderId].expiration + creditLength;
     }
 
     function _uploadChunk(bytes32 fileId, uint256 chunkIndex, bytes memory chunk)

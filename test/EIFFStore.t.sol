@@ -20,16 +20,24 @@ contract EIFFStoreTest is Test {
 
         vm.startPrank(alice);
 
-        bytes memory dummyData = new bytes(24_000);
-        dummyData[69] = 0x01;
-        bytes32[] memory dummyChecksum = new bytes32[](1);
-        dummyChecksum[0] = keccak256(dummyData);
+        bytes[] memory dummyData = new bytes[](2);
+
+        dummyData[0] = new bytes(24_000);
+        dummyData[0][69] = 0x01;
+
+        dummyData[1] = new bytes(24_000);
+        dummyData[1][420] = 0x42;
+
+        bytes32[] memory dummyChecksum = new bytes32[](2);
+        dummyChecksum[0] = keccak256(dummyData[0]);
+        dummyChecksum[1] = keccak256(dummyData[1]);
 
         string memory filename = "dummy";
 
         store.createFile(filename, dummyChecksum);
 
-        store.uploadChunk(filename, dummyData);
+        store.uploadChunk(filename, 0, dummyData[0]);
+        store.uploadChunk(filename, 1, dummyData[1]);
 
         emit log_string(store.tokenURI(0));
 
