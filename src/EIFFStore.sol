@@ -228,7 +228,10 @@ contract EIFFStore is EIFFReader {
         file.chunks[chunkIndex].pointer = pointer;
         file.size += uint248(chunk.length);
 
-        _creditHolder(msg.sender);
+        // check that the chunk is at least 23kbs unless it is the last one before crediting the expiration
+        if (chunk.length > 23_000 || chunkIndex == file.chunks.length - 1) {
+            _creditHolder(msg.sender);
+        }
 
         emit ChunkUploaded(fileId, pointer, chunk.length);
         return pointer;

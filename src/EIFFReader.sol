@@ -4,6 +4,7 @@ pragma solidity ^0.8.19;
 import "lib/solmate/src/auth/Owned.sol";
 import "lib/openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "./EIFFRenderer.sol";
+import "lib/solady/src/utils/SafeTransferLib.sol";
 
 contract EIFFReader is ERC721Enumerable, Owned(msg.sender) {
 
@@ -13,7 +14,8 @@ contract EIFFReader is ERC721Enumerable, Owned(msg.sender) {
     }
 
     mapping(uint256 => READER_SETTING) public readerSettings;
-    uint64 public creditLength = 30 days;
+    uint64 public creditLength = 180 days;
+    uint256 public creditCost = 0.5 ether;
 
     constructor() ERC721("EIFFReader", unicode"📖") {}
 
@@ -44,6 +46,17 @@ contract EIFFReader is ERC721Enumerable, Owned(msg.sender) {
         readerSettings[tokenId].authorizedContract = newAuthorizedContract;
     }
 
+    function extendCredit(uint256 tokenId) public payable {
+        require(msg.sender == ownerOf(tokenId), "EIFFReader: caller is not the owner or holder");
+        require(msg.value > creditCost, "EIFFReader: must send ether to extend credit by one month");
+
+        uint256 credit = creditLength * (msg.value / creditCost);
+
+        readerSettings[tokenId].expiration = readerSettings[tokenId].expiration < block.timestamp ? 
+            uint64(block.timestamp + credit) : 
+            uint64(readerSettings[tokenId].expiration + credit);
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //*                                                        Contract Owner Functions                                                 *//
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -52,7 +65,15 @@ contract EIFFReader is ERC721Enumerable, Owned(msg.sender) {
         creditLength = newCreditLength;
     }
 
+    function changeCreditCost(uint256 newCreditCost) public onlyOwner {
+        creditCost = newCreditCost;
+    }
+
     function setExpiration(uint256 tokenId, uint64 newExpiration) public onlyOwner {
         readerSettings[tokenId].expiration = newExpiration;
+    }
+
+    function withdraw() public onlyOwner {
+        SafeTransferLib.safeTransferETH(address(this).balance, owner());
     }
 }
